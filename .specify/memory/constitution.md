@@ -1,27 +1,30 @@
 <!--
 Sync Impact Report
-- Version change: template-unset -> 1.0.0
+- Version change: 1.0.0 -> 1.1.0
 - Modified principles:
-	- Principle slot 1 -> I. Solucion Fullstack Unica
-	- Principle slot 2 -> II. Spec-Driven Development No Negociable
-	- Principle slot 3 -> III. Arquitectura Canonica de Backend y Frontend
-	- Principle slot 4 -> IV. Persistencia Evolutiva y Contratos Estables
-	- Principle slot 5 -> V. Calidad, Trazabilidad y Disciplina de Entrega
+  - I. Solución Única y Compartida -> mantenido, reforzado con regla de no bifurcación de capas
+  - II. Spec-Driven Development (No Negociable) -> reforzado con obligación de verificación y trazabilidad
+  - III. Arquitectura Canónica de Backend y Frontend -> reforzado con prohibiciones y responsabilidades
+  - IV. Stack Tecnológico Obligatorio -> mantenido con listado explícito y no negociable
+  - V. Calidad de Dominio, Validación y Entregas -> reforzado con validación, logging y pruebas
+  - VI. Idioma y Documentación -> mantenido
+  - VII. Gobernanza y Divergencias -> ampliado con precedencia y protocolo de escalado
 - Added sections:
-	- Restricciones Operativas
-	- Flujo de Trabajo y Validaciones
+  - Estructura del Repositorio
+  - Método de Trabajo
+  - Modo Interactivo de Preguntas
+  - Precedencia ante Conflictos con Upstream Spec-Kit
+  - Protocolo del Agente ante Divergencias
 - Removed sections:
-	- Ninguna
+  - Ninguna
 - Templates requiring updates:
-	- ✅ reviewed without changes: .specify/templates/plan-template.md
-	- ✅ reviewed without changes: .specify/templates/spec-template.md
-	- ✅ reviewed without changes: .specify/templates/tasks-template.md
-	- ⚠ pending manual review: .specify/templates/commands/*.md (directory not present)
-- Runtime guidance reviewed:
-	- ✅ reviewed without changes: .github/agents/speckit.constitution.agent.md
-	- ✅ reviewed without changes: .specify/extensions/agent-context/README.md
+  - ✅ reviewed without changes: .specify/templates/plan-template.md
+  - ✅ reviewed without changes: .specify/templates/spec-template.md
+  - ✅ reviewed without changes: .specify/templates/tasks-template.md
+  - ✅ reviewed without changes: .specify/templates/constitution-template.md
+  - ⚠ pending manual review: .specify/templates/commands/*.md (directory not present in this repo)
 - Follow-up TODOs:
-	- Ninguno
+  - Ninguno
 -->
 
 # Constitución del Proyecto Realtor
@@ -31,31 +34,29 @@ Sync Impact Report
 ### I. Solución Única y Compartida
 Esta solución es una y no puede dividirse. Frontend, backend, dominio y persistencia evolucionan dentro del mismo sistema.
 
-Toda iniciativa en specs DEBE contribuir a esta solución compartida, independientemente de si pertenece a la capa frontend o backend.
+Toda iniciativa en specs DEBE contribuir a esta solución compartida, independientemente de la capa a la que pertenezca.
 
-No se permiten soluciones paralelas, bifurcaciones de arquitectura ni estructuras separadas por tipo de capa.
+No se permiten soluciones paralelas, bifurcaciones de arquitectura ni estructuras separadas por tipo de capa. La disciplina de diseño prevalece sobre la conveniencia individual de cada equipo o tarea.
 
 ### II. Spec-Driven Development (No Negociable)
-Las specs aprobadas en specs, carpeta ubicada en la raíz del repositorio, son la única fuente de verdad del proyecto.
-
-No se DEBE implementar ninguna funcionalidad que no esté descrita en el spec vigente.
+Las specs aprobadas en la carpeta specs son la única fuente de verdad del proyecto. No se DEBE implementar ninguna funcionalidad que no esté descrita en el spec vigente.
 
 El flujo obligatorio mínimo es:
+
 speckit.specify -> speckit.plan -> speckit.tasks -> speckit.implement
 
 Para specs fundacionales o de alto impacto se recomienda:
+
 speckit.specify -> speckit.clarify -> speckit.plan -> speckit.analyze -> speckit.tasks -> speckit.implement
 
-Ninguna fase obligatoria puede saltarse.
+Ninguna fase obligatoria puede saltarse. Toda tarea DEBE estar vinculada a un requisito, user story o criterio de aceptación ya aprobado.
 
 ### III. Arquitectura Canónica de Backend y Frontend
 El backend DEBE organizarse por features y casos de uso con Vertical Slice Architecture.
 
-Están prohibidos controllers y carpetas técnicas globales genéricas para orquestar el dominio.
+Están prohibidos controllers y carpetas técnicas globales genéricas para orquestar el dominio. Program solo configura servicios, middleware, registro de infraestructura y mapeo de endpoints.
 
-Program solo configura servicios, middleware, registro de infraestructura y mapeo de endpoints.
-
-El frontend DEBE implementarse con Blazor Web App y Razor Components.
+El frontend DEBE implementarse con Blazor Web App y Razor Components. La capa de presentación no DEBE contener lógica de negocio ni reglas de dominio.
 
 ### IV. Stack Tecnológico Obligatorio
 El stack no es negociable y DEBE aplicarse sin excepción:
@@ -65,27 +66,29 @@ El stack no es negociable y DEBE aplicarse sin excepción:
 - Backend: ASP.NET Core Minimal APIs.
 - Persistencia: EF Core + Npgsql + PostgreSQL.
 - Comunicación: Refit con IHttpClientFactory.
-- Validación y errores: FluentValidation + ProblemDetails.
+- Validación y manejo de errores: FluentValidation + ProblemDetails.
 - Estilos: CSS propio centralizado en wwwroot/app.css, sin frameworks CSS.
 - Íconos: Lucide Icons como sistema principal.
 
-### V. Calidad de Dominio y Contratos
+Cualquier desviación DEBE justificarse explícitamente en la spec o en el plan de la iniciativa, y no puede hacerse por costumbre local ni preferencia individual.
+
+### V. Calidad de Dominio, Validación y Entregas
 La lógica de negocio no DEBE residir en componentes UI, endpoints ni DbContext.
 
-Las entidades de dominio no DEBEN mezclarse con requests o responses.
+Las entidades de dominio no DEBEN mezclarse con requests o responses. Los contratos de entrada y salida deben ser explícitos y estables.
 
 Todo endpoint DEBE tener validación consistente y retornar ProblemDetails con status codes correctos.
 
-DEBE existir logging estructurado.
+DEBE existir logging estructurado. Toda entrega DEBE contar con evidencia de verificación, no con suposiciones.
 
-Solo se permiten unit tests, salvo que una spec aprobada justifique explícitamente otro tipo de prueba en plan y tasks.
+Solo se permiten unit tests salvo que una spec aprobada justifique explícitamente otro tipo de prueba en plan y tasks. El TDD y la comprobación real son obligatorios para cambios con impacto funcional.
 
 ### VI. Idioma y Documentación
 Todo contenido markdown propio del repositorio DEBE estar escrito en español.
 
 Se permiten nombres técnicos, APIs, comandos, namespaces y paquetes en inglés cuando corresponda.
 
-Está prohibido mezclar idiomas dentro de un mismo documento.
+Está prohibido mezclar idiomas dentro de un mismo documento. La claridad del contexto debe priorizarse sobre la conveniencia ortográfica.
 
 ### VII. Gobernanza y Divergencias
 Esta constitución prevalece sobre cualquier preferencia personal o convención no normativa.
@@ -123,10 +126,10 @@ Antes de implementar:
 1. Leer spec.md.
 2. Leer plan.md.
 3. Leer tasks.md.
-4. Identificar tarea específica.
-5. Implementar solo alcance aprobado.
-6. Verificar resultado.
-7. Marcar tarea como X solo tras verificación.
+4. Identificar la tarea específica.
+5. Implementar solo el alcance aprobado.
+6. Verificar el resultado.
+7. Marcar la tarea como completada solo tras verificación.
 
 Reglas de secuencia obligatorias:
 
@@ -146,7 +149,7 @@ El comando speckit.plan opera en modo interactivo condicional: solo lanza pregun
 
 Cuando un comando opera en modo interactivo, DEBE seguir este protocolo sin excepción.
 
-Toda pregunta DEBE redactarse de forma clara, directa y entendible por el humano, evitando ambigüedad o jerga innecesaria, para que pueda escoger la opción correcta con seguridad.
+Toda pregunta DEBE redactarse de forma clara, directa y entendible para el humano, evitando ambigüedad o jerga innecesaria, para que pueda escoger la opción correcta con seguridad.
 
 ### Formato de pregunta con opciones
 
@@ -209,7 +212,7 @@ Las enmiendas DEBEN documentarse con versión semántica:
 
 Toda PR o revisión DEBE verificar cumplimiento de esta constitución antes de aprobarse.
 
-Cualquier violación DEBE justificarse explícitamente en plan de la iniciativa correspondiente. En ausencia de justificación, la PR DEBE rechazarse.
+Cualquier violación DEBE justificarse explícitamente en el plan de la iniciativa correspondiente. En ausencia de justificación, la PR DEBE rechazarse.
 
 ---
 
@@ -233,6 +236,4 @@ Está prohibido al agente mover archivos por iniciativa propia, renombrar carpet
 
 La única resolución legítima es la decisión humana documentada vía enmienda constitucional o ajuste explícito de convención local.
 
-
-
-**Version**: 1.0.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-07-04
+**Version**: 1.1.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-09-21
