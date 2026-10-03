@@ -1,0 +1,6 @@
+{
+  "propertySeedFile": "properties.json",
+  "statusSeedFile": "properties-statuses.json",
+  "imageSourceRoot": "images/properties",
+  "publicImageRoot": "/images/properties"
+}
