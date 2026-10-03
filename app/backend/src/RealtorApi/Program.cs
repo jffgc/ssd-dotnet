@@ -1,16 +1,28 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RealtorApi.Infrastructure.Endpoints;
 using RealtorApi.Infrastructure.Handlers;
+using RealtorApi.Infrastructure.Persistence;
 using RealtorApi.Infrastructure.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options
+        .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options
+        .UseRealtorSeeding());
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.RegisterHandlers(typeof(Program).Assembly);
 builder.Services.RegisterSlices(typeof(Program).Assembly);
 
 var app = builder.Build();
+
+app.UseStaticFiles();
 
 app.UseExceptionHandler(exceptionHandlerApp =>
 {
@@ -29,6 +41,8 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 });
 
 app.MapSliceEndpoints();
+
+await app.MigrateAsync();
 
 app.Run();
 
