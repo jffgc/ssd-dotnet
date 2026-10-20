@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 -> 1.1.0
+- Version change: 1.1.0 -> 1.2.0
 - Modified principles:
   - I. Solución Única y Compartida -> mantenido, reforzado con regla de no bifurcación de capas
   - II. Spec-Driven Development (No Negociable) -> reforzado con obligación de verificación y trazabilidad
@@ -9,6 +9,8 @@ Sync Impact Report
   - V. Calidad de Dominio, Validación y Entregas -> reforzado con validación, logging y pruebas
   - VI. Idioma y Documentación -> mantenido
   - VII. Gobernanza y Divergencias -> ampliado con precedencia y protocolo de escalado
+- Modified sections:
+  - Método de Trabajo -> aclara que artefactos auxiliares de planificación pueden acompañar los tres artefactos normativos obligatorios
 - Added sections:
   - Estructura del Repositorio
   - Método de Trabajo
@@ -115,11 +117,13 @@ La carpeta .specify se reserva para infraestructura operativa de spec-kit.
 
 ## Método de Trabajo
 
-Cada iniciativa DEBE contener exactamente tres archivos:
+Cada iniciativa DEBE contener estos tres artefactos normativos:
 
 - spec.md
 - plan.md
 - tasks.md
+
+El flujo de planificación puede generar artefactos auxiliares requeridos por la plantilla o el proceso vigente de Spec Kit, como `research.md`, `data-model.md`, `quickstart.md` y contratos dentro de `contracts/`. Estos artefactos complementan, pero no sustituyen, los tres artefactos normativos y no autorizan la implementación fuera de las tareas aprobadas.
 
 Antes de implementar:
 
@@ -236,4 +240,4 @@ Está prohibido al agente mover archivos por iniciativa propia, renombrar carpet
 
 La única resolución legítima es la decisión humana documentada vía enmienda constitucional o ajuste explícito de convención local.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-09-21
+**Version**: 1.2.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-10-18

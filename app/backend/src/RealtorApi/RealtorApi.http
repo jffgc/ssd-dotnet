@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:5116
+
+### List properties with default pagination
+GET {{baseUrl}}/api/properties
+
+### List properties with explicit pagination
+GET {{baseUrl}}/api/properties?page=1&pageSize=6
+
+### Invalid page: zero
+GET {{baseUrl}}/api/properties?page=0
+
+### Invalid page: larger than Int32.MaxValue
+GET {{baseUrl}}/api/properties?page=2147483648
+
+### Invalid page: non-integer
+GET {{baseUrl}}/api/properties?page=not-a-number
+
+### Invalid page size: negative
+GET {{baseUrl}}/api/properties?pageSize=-1
+
+### Invalid page size: greater than 100
+GET {{baseUrl}}/api/properties?pageSize=101
+
+### Invalid page size: non-integer
+GET {{baseUrl}}/api/properties?pageSize=not-a-number
