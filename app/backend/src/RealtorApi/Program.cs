@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using RealtorApi.Infrastructure.Endpoints;
 using RealtorApi.Infrastructure.Handlers;
 using RealtorApi.Infrastructure.Persistence;
@@ -16,13 +17,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options
         .UseRealtorSeeding());
 
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, ServiceLifetime.Scoped);
 builder.Services.RegisterHandlers(typeof(Program).Assembly);
 builder.Services.RegisterSlices(typeof(Program).Assembly);
 
 var app = builder.Build();
 
 app.UseStaticFiles();
+var propertiesWebRootPath = app.Environment.WebRootPath
+    ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+if (!Directory.Exists(Path.Combine(propertiesWebRootPath, "images", "properties")))
+{
+    propertiesWebRootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+}
+
+app.UseStaticFiles(Program.CreatePropertiesAssetsOptions(propertiesWebRootPath));
 
 app.UseExceptionHandler(exceptionHandlerApp =>
 {
@@ -46,4 +55,16 @@ await app.MigrateAsync();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+    public static StaticFileOptions CreatePropertiesAssetsOptions(string webRootPath)
+    {
+        var propertiesDirectory = Path.GetFullPath(Path.Combine(webRootPath, "images", "properties"));
+
+        return new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(propertiesDirectory),
+            RequestPath = "/assets/properties"
+        };
+    }
+}

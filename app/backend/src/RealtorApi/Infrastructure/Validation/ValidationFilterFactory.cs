@@ -10,33 +10,39 @@ public sealed class ValidationFilterFactory
     {
         return provider.GetService<IValidator<T>>();
     }
-}
 
-public static class ValidationFilterExtensions
-{
-    public static IEndpointConventionBuilder AddValidationFilter<T>(this IEndpointConventionBuilder builder, IServiceProvider provider)
+    public static EndpointFilterDelegate Create(
+        EndpointFilterFactoryContext context,
+        EndpointFilterDelegate next)
     {
-        var validator = new ValidationFilterFactory().CreateValidator<T>(provider);
+        var serviceChecker = context.ApplicationServices.GetRequiredService<IServiceProviderIsService>();
+        var filterTypes = context.MethodInfo
+            .GetParameters()
+            .Select(parameter => parameter.ParameterType)
+            .Distinct()
+            .Where(parameterType =>
+                serviceChecker.IsService(typeof(IValidator<>).MakeGenericType(parameterType)))
+            .Select(parameterType => (IEndpointFilter)Activator.CreateInstance(
+                typeof(ValidationFilter<>).MakeGenericType(parameterType))!)
+            .ToArray();
 
-        if (validator is null)
+        if (filterTypes.Length == 0)
         {
-            return builder;
+            return next;
         }
 
-        builder.AddEndpointFilter(new ValidationFilter<T>(validator));
-        return builder;
+        foreach (var filter in filterTypes.Reverse())
+        {
+            var following = next;
+            next = invocationContext => filter.InvokeAsync(invocationContext, following);
+        }
+
+        return next;
     }
 }
 
 public sealed class ValidationFilter<T> : IEndpointFilter
 {
-    private readonly IValidator<T> _validator;
-
-    public ValidationFilter(IValidator<T> validator)
-    {
-        _validator = validator;
-    }
-
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var request = context.Arguments.OfType<T>().FirstOrDefault();
@@ -45,7 +51,15 @@ public sealed class ValidationFilter<T> : IEndpointFilter
             return await next(context);
         }
 
-        var validationResult = await _validator.ValidateAsync(new ValidationContext<T>(request), context.HttpContext.RequestAborted);
+        var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();
+        if (validator is null)
+        {
+            return await next(context);
+        }
+
+        var validationResult = await validator.ValidateAsync(
+            new ValidationContext<T>(request),
+            context.HttpContext.RequestAborted);
         if (!validationResult.IsValid)
         {
             return Results.ValidationProblem(validationResult.ToDictionary());

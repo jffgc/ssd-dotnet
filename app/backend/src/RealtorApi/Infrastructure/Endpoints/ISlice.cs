@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using RealtorApi.Infrastructure.Validation;
 
 namespace RealtorApi.Infrastructure.Endpoints;
 
@@ -34,11 +35,14 @@ public static class SliceRegistrationExtensions
 
     public static IEndpointRouteBuilder MapSliceEndpoints(this IEndpointRouteBuilder app)
     {
+        var group = app.MapGroup(string.Empty);
+        group.AddEndpointFilterFactory(ValidationFilterFactory.Create);
+
         var slices = app.ServiceProvider.GetServices<ISlice>();
 
         foreach (var slice in slices)
         {
-            slice.AddEndpoint(app);
+            slice.AddEndpoint(group);
         }
 
         return app;

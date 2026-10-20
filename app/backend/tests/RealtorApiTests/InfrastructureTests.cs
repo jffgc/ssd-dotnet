@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.Results;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -57,6 +58,37 @@ public class InfrastructureTests
         });
 
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(SampleRequest.Name));
+    }
+
+    [Fact]
+    public async Task ValidationFilterFactory_Resolves_Scoped_Validator_Per_Request_And_Returns_ValidationProblemDetails()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddScoped<IValidator<SampleRequest>, SampleRequestValidator>();
+        using var app = builder.Build();
+        app.MapGroup(string.Empty)
+            .AddEndpointFilterFactory(ValidationFilterFactory.Create)
+            .MapGet("/validation", ([AsParameters] SampleRequest request) => request.Name);
+        var endpoint = Assert.Single(((IEndpointRouteBuilder)app).DataSources
+            .SelectMany(dataSource => dataSource.Endpoints)
+            .OfType<RouteEndpoint>());
+        await using var scope = app.Services.CreateAsyncScope();
+        var httpContext = new DefaultHttpContext
+        {
+            RequestServices = scope.ServiceProvider
+        };
+        httpContext.Request.Method = HttpMethods.Get;
+        httpContext.Request.Path = "/validation";
+        httpContext.Request.QueryString = new QueryString("?Name=");
+        httpContext.Response.Body = new MemoryStream();
+
+        await endpoint.RequestDelegate!(httpContext);
+        httpContext.Response.Body.Position = 0;
+        using var document = await JsonDocument.ParseAsync(httpContext.Response.Body);
+
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errors));
+        Assert.True(errors.TryGetProperty(nameof(SampleRequest.Name), out _));
     }
 
     [Fact]
