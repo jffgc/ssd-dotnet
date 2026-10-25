@@ -16,7 +16,6 @@ public sealed class CreatePropertyEndpoint : ISlice
             var response = property.ToResponse();
 
             return Results.Created($"/api/properties/{property.Id}", response);
-        })
-        .AddValidationFilter<CreatePropertyRequest>(app.ServiceProvider);
+        });
     }
 }
