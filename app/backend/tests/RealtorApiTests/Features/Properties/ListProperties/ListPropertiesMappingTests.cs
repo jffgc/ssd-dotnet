@@ -56,6 +56,29 @@ public sealed class ListPropertiesMappingTests
         Assert.False(response.HasPrevious);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("/assets/properties/")]
+    [InlineData("/assets/properties/%2E%2E%2Fsecret.jpg")]
+    public void ToResponse_Rejects_Empty_Or_Unsafe_Image_File_Names(string imageUrl)
+    {
+        var item = new ListPropertyData(
+            Id: Guid.NewGuid(),
+            Title: "House",
+            Description: "Description",
+            Address: "Address",
+            Price: 125000m,
+            Status: PropertyStatus.Available,
+            BedroomCount: 2,
+            BathroomCount: 1,
+            AreaSquareMeters: 85m,
+            ImageUrl: imageUrl);
+        var result = new ListPropertiesQueryResult([item], Page: 1, PageSize: 1, TotalItems: 1);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            result.ToResponse("https", new HostString("catalog.example")));
+    }
+
     [Fact]
     public void ToResponse_Uses_Previous_Flag_For_Out_Of_Range_Page()
     {

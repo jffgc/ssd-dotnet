@@ -1,10 +1,40 @@
 @baseUrl = http://localhost:5116
+@httpsBaseUrl = https://localhost:7207
+@propertyIdWithImage = 9c2fcbcb-f94a-4c70-b04f-b24488b89ad1
+@propertyIdWithoutImage = 32e8d37b-ea6f-4f4a-9b28-9caa4de6fbb2
 
 ### List properties with default pagination
 GET {{baseUrl}}/api/properties
 
 ### List properties with explicit pagination
 GET {{baseUrl}}/api/properties?page=1&pageSize=6
+
+### Get a property with an image
+# Replace the property ID with an existing record that has an image.
+GET {{baseUrl}}/api/properties/{{propertyIdWithImage}}
+Accept: application/json
+
+### Get a property without an image
+# Replace the property ID with an existing record whose imageUrl is null.
+GET {{baseUrl}}/api/properties/{{propertyIdWithoutImage}}
+Accept: application/json
+
+### Get a property with HTTPS and an alternate host
+GET {{httpsBaseUrl}}/api/properties/{{propertyIdWithImage}}
+Host: catalog.example:8443
+Accept: application/json
+
+### Get a canonical UUID that does not exist
+GET {{baseUrl}}/api/properties/00000000-0000-0000-0000-000000000001
+Accept: application/json
+
+### Reject a malformed ID
+GET {{baseUrl}}/api/properties/not-a-guid
+Accept: application/json
+
+### Reject a parseable UUID without canonical hyphens
+GET {{baseUrl}}/api/properties/9c2fcbcbf94a4c70b04fb24488b89ad1
+Accept: application/json
 
 ### Invalid page: zero
 GET {{baseUrl}}/api/properties?page=0

@@ -1,0 +1,151 @@
+openapi: 3.1.0
+info:
+  title: RealtorApi - detalle de propiedad
+  version: 1.0.0
+  description: Contrato de lectura de una propiedad individual por GUID.
+paths:
+  /api/properties/{id}:
+    get:
+      operationId: getPropertyById
+      summary: Consultar una propiedad por identificador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID en formato canónico con guiones (8-4-4-4-12). Otros formatos reciben 400 aunque .NET pueda interpretarlos como Guid; si el formato es válido pero no identifica una propiedad se responde 404.
+          schema:
+            type: string
+            format: uuid
+            pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      responses:
+        "200":
+          description: Detalle de la propiedad solicitada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyDetail"
+              examples:
+                conImagen:
+                  summary: Propiedad con imagen
+                  value:
+                    id: 9c2fcbcb-f94a-4c70-b04f-b24488b89ad1
+                    title: Casa en el centro
+                    description: Casa familiar con patio.
+                    address: Avenida Central 123
+                    price: 285000
+                    status: Available
+                    bedroomCount: 3
+                    bathroomCount: 2
+                    areaSquareMeters: 148.5
+                    imageUrl: https://api.example.test/assets/properties/casa-centro.jpg
+                sinImagen:
+                  summary: Propiedad sin imagen
+                  value:
+                    id: 32e8d37b-ea6f-4f4a-9b28-9caa4de6fbb2
+                    title: Departamento luminoso
+                    description: Departamento en buen estado.
+                    address: Calle Norte 45
+                    price: 175000
+                    status: Available
+                    bedroomCount: 2
+                    bathroomCount: 1
+                    areaSquareMeters: 82
+                    imageUrl: null
+        "400":
+          description: El segmento id no usa el formato UUID canónico con guiones.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ValidationProblemDetails"
+              example:
+                type: https://example.test/problems/validation
+                title: Se produjo un error de validación.
+                status: 400
+                errors:
+                  id:
+                    - El id debe usar el formato UUID canónico con guiones.
+        "404":
+          description: El GUID es válido, pero no existe una propiedad con ese identificador.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                type: https://example.test/problems/not-found
+                title: No se encontró la propiedad.
+                status: 404
+                detail: No existe una propiedad con el identificador solicitado.
+components:
+  schemas:
+    PropertyDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - description
+        - address
+        - price
+        - status
+        - bedroomCount
+        - bathroomCount
+        - areaSquareMeters
+        - imageUrl
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+          enum: [Available, Rented, Maintenance]
+        bedroomCount:
+          type: integer
+        bathroomCount:
+          type: integer
+        areaSquareMeters:
+          type: number
+        imageUrl:
+          anyOf:
+            - type: string
+              format: uri
+              pattern: "^https?://[^/]+/assets/properties/[^/]+$"
+            - type: "null"
+          description: null si la propiedad no tiene imagen; de lo contrario, URL absoluta pública construida con el esquema y host de la solicitud actual.
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          const: 404
+        detail:
+          type: string
+        instance:
+          type: string
+    ValidationProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          const: 400
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
