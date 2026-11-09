@@ -6,6 +6,9 @@ public sealed class HealthSlice : ISlice
 {
     public void AddEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
+        app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }))
+            .WithName("Health")
+            .WithSummary("Check API health")
+            .Produces(StatusCodes.Status200OK);
     }
 }

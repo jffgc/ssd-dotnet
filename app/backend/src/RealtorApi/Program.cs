@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options
         .UseRealtorSeeding());
 
+builder.Services.AddOpenApi();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, ServiceLifetime.Scoped);
 builder.Services.RegisterHandlers(typeof(Program).Assembly);
 builder.Services.RegisterSlices(typeof(Program).Assembly);
@@ -24,6 +25,7 @@ builder.Services.RegisterSlices(typeof(Program).Assembly);
 var app = builder.Build();
 
 app.UseStaticFiles();
+
 var propertiesWebRootPath = app.Environment.WebRootPath
     ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
 if (!Directory.Exists(Path.Combine(propertiesWebRootPath, "images", "properties")))
@@ -51,7 +53,10 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 
 app.MapSliceEndpoints();
 
-await app.MigrateAsync();
+if (!app.Environment.IsEnvironment("OpenApiGeneration"))
+{
+    await app.MigrateAsync();
+}
 
 app.Run();
 

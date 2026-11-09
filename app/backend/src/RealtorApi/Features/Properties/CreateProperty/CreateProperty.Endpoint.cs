@@ -16,6 +16,12 @@ public sealed class CreatePropertyEndpoint : ISlice
             var response = property.ToResponse();
 
             return Results.Created($"/api/properties/{property.Id}", response);
-        });
+        })
+            .WithName("CreateProperty")
+            .WithSummary("Create a property")
+            .WithDescription("Creates a property and optionally stores a public image.")
+            .Accepts<CreatePropertyRequest>("multipart/form-data")
+            .Produces<CreatePropertyResponse>(StatusCodes.Status201Created)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest);
     }
 }
