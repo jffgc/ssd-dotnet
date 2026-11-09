@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/RicoSuter/NSwag/master/schema/NSwagConfig-10.0.0.json",
+  "runtime": "Net90",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "json": "app/backend/src/RealtorApi/wwwroot/openapi/v1.json",
+      "url": "",
+      "output": null,
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "RealtorApiClient",
+      "namespace": "RealtorApi.Client",
+      "output": "../../artifacts/openapi-client-smoke/RealtorApiClient.cs",
+      "generateClientInterfaces": false,
+      "generateDtoTypes": true,
+      "generateOptionalParameters": true,
+      "useHttpClientCreationMethod": false,
+      "dateType": "System.DateTimeOffset",
+      "datetimeType": "System.DateTimeOffset",
+      "nullValue": "Null",
+      "generateResponseClasses": true,
+      "responseClass": "SwaggerResponse"
+    }
+  }
+}

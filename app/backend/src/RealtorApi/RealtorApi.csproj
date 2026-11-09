@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0-preview.7.25380.108" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="11.0.0-preview.7.26381.103" PrivateAssets="all" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.4">
       <PrivateAssets>all</PrivateAssets>
@@ -19,9 +21,23 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+    <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/$(BaseIntermediateOutputPath)openapi</OpenApiDocumentsDirectory>
+    <OpenApiGenerationEnvironment>OpenApiGeneration</OpenApiGenerationEnvironment>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\..\..\support\seed-data\**\*.*" Link="support\seed-data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\..\..\support\seed-data\images\properties\**\*.*" Link="wwwroot\images\properties\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="CopyGeneratedOpenApiV1" AfterTargets="GenerateOpenApiDocuments">
+    <MakeDir Directories="$(MSBuildProjectDirectory)\wwwroot\openapi" />
+    <Copy
+      SourceFiles="$(OpenApiDocumentsDirectory)/$(MSBuildProjectName).json"
+      DestinationFiles="$(MSBuildProjectDirectory)\wwwroot\openapi\v1.json" />
+  </Target>
 
 </Project>
