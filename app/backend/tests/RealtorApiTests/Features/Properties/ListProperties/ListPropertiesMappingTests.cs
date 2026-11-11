@@ -60,6 +60,7 @@ public sealed class ListPropertiesMappingTests
     [InlineData("")]
     [InlineData("/assets/properties/")]
     [InlineData("/assets/properties/%2E%2E%2Fsecret.jpg")]
+    [InlineData("/assets/properties/%252E%252E%252Fsecret.jpg")]
     public void ToResponse_Rejects_Empty_Or_Unsafe_Image_File_Names(string imageUrl)
     {
         var item = new ListPropertyData(
