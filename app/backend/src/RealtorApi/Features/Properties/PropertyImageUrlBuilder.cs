@@ -11,7 +11,23 @@ internal static class PropertyImageUrlBuilder
             : imageUrl;
         path = path.Split('?', '#')[0].Replace('\\', '/');
         var encodedFileName = path[(path.LastIndexOf('/') + 1)..];
-        var fileName = Uri.UnescapeDataString(encodedFileName);
+        var fileName = encodedFileName;
+        while (true)
+        {
+            if (fileName.Contains("%2f", StringComparison.OrdinalIgnoreCase)
+                || fileName.Contains("%5c", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("The persisted property image path does not contain a safe file name.");
+            }
+
+            var decodedFileName = Uri.UnescapeDataString(fileName);
+            if (decodedFileName == fileName)
+            {
+                break;
+            }
+
+            fileName = decodedFileName;
+        }
 
         if (string.IsNullOrWhiteSpace(fileName)
             || fileName is "." or ".."
