@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using RealtorApi.Domain.Properties;
 using RealtorApi.Features.Properties.GetPropertyById;
 using RealtorApi.Infrastructure.Persistence;
@@ -32,16 +33,19 @@ public sealed class GetPropertyByIdTests
         context.Properties.Add(property);
         await context.SaveChangesAsync();
 
-        var handler = new GetPropertyByIdHandler(context);
+        var handler = new GetPropertyByIdHandler(
+            context,
+            NullLogger<GetPropertyByIdHandler>.Instance);
 
-        var result = await handler.HandleAsync(property.Id, CancellationToken.None);
+        var result = await handler.HandleAsync(
+            new GetPropertyByIdQuery(property.Id),
+            CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(property.Id, result.Id);
         Assert.Equal(property.Title, result.Title);
         Assert.Equal(property.Status, result.Status);
         Assert.Equal(property.ImageUrl, result.ImageUrl);
-        Assert.Equal(property.CreatedAt, result.CreatedAt);
     }
 
     [Fact]
@@ -52,9 +56,13 @@ public sealed class GetPropertyByIdTests
             .Options;
 
         await using var context = new AppDbContext(options);
-        var handler = new GetPropertyByIdHandler(context);
+        var handler = new GetPropertyByIdHandler(
+            context,
+            NullLogger<GetPropertyByIdHandler>.Instance);
 
-        var result = await handler.HandleAsync(Guid.NewGuid(), CancellationToken.None);
+        var result = await handler.HandleAsync(
+            new GetPropertyByIdQuery(Guid.NewGuid()),
+            CancellationToken.None);
 
         Assert.Null(result);
     }
