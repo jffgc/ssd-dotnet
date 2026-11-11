@@ -76,8 +76,8 @@
         "tags": [
           "RealtorApi"
         ],
-        "summary": "Get a property by id",
-        "description": "Returns the property matching the specified identifier.",
+        "summary": "Consultar una propiedad por identificador",
+        "description": "Devuelve el detalle público de una propiedad identificada por un UUID canónico.",
         "operationId": "GetPropertyById",
         "parameters": [
           {
@@ -85,8 +85,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -97,6 +96,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GetPropertyByIdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
                 }
               }
             }
@@ -359,9 +368,7 @@
           "bedroomCount",
           "bathroomCount",
           "areaSquareMeters",
-          "imageUrl",
-          "createdAt",
-          "updatedAt"
+          "imageUrl"
         ],
         "type": "object",
         "properties": {
@@ -387,7 +394,7 @@
             "format": "double"
           },
           "status": {
-            "$ref": "#/components/schemas/PropertyStatus"
+            "type": "string"
           },
           "bedroomCount": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -418,17 +425,6 @@
               "null",
               "string"
             ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "date-time"
           }
         }
       },
