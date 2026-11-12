@@ -53,3 +53,66 @@ GET {{baseUrl}}/api/properties?pageSize=101
 
 ### Invalid page size: non-integer
 GET {{baseUrl}}/api/properties?pageSize=not-a-number
+
+### Actualizar el estado de una propiedad
+PATCH {{baseUrl}}/api/properties/{{propertyIdWithImage}}/status
+Content-Type: application/json
+
+{
+	"status": "Rented"
+}
+
+### Verificar que la propiedad conserva los demás datos
+GET {{baseUrl}}/api/properties/{{propertyIdWithImage}}
+Accept: application/json
+
+### Rechazar un id canónico sin propiedad
+PATCH {{baseUrl}}/api/properties/00000000-0000-0000-0000-000000000001/status
+Content-Type: application/json
+
+{
+	"status": "Rented"
+}
+
+### Rechazar un body sin status
+# Esperado: 400 ValidationProblemDetails.
+PATCH {{baseUrl}}/api/properties/{{propertyIdWithImage}}/status
+Content-Type: application/json
+
+{}
+
+### Rechazar un status no admitido
+# Esperado: 400 ValidationProblemDetails.
+PATCH {{baseUrl}}/api/properties/{{propertyIdWithImage}}/status
+Content-Type: application/json
+
+{
+	"status": "Sold"
+}
+
+### Rechazar campos distintos de status
+# Esperado: 400 ValidationProblemDetails sin cambios persistidos.
+PATCH {{baseUrl}}/api/properties/{{propertyIdWithImage}}/status
+Content-Type: application/json
+
+{
+	"status": "Rented",
+	"title": "No se debe aplicar"
+}
+
+### Rechazar JSON malformado
+# Esperado: 400 ValidationProblemDetails.
+PATCH {{baseUrl}}/api/properties/{{propertyIdWithImage}}/status
+Content-Type: application/json
+
+{
+	"status":
+
+### Rechazar UUID no canónico
+# Esperado: 400 ValidationProblemDetails.
+PATCH {{baseUrl}}/api/properties/9c2fcbcbf94a4c70b04fb24488b89ad1/status
+Content-Type: application/json
+
+{
+	"status": "Rented"
+}
