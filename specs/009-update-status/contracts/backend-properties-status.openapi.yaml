@@ -1,0 +1,122 @@
+openapi: 3.1.0
+info:
+  title: RealtorApi - actualización del estado de una propiedad
+  version: 1.0.0
+  description: Contrato público para modificar exclusivamente el estado de una propiedad existente.
+paths:
+  /api/properties/{id}/status:
+    patch:
+      operationId: updatePropertyStatus
+      summary: Actualizar el estado de una propiedad
+      description: Cambia únicamente el estado de una propiedad existente. Todos los demás datos persistidos, incluido imageUrl, permanecen sin cambios.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID canónico con guiones. Los formatos no canónicos reciben 400.
+          schema:
+            type: string
+            format: uuid
+            pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePropertyStatusRequest"
+            example:
+              status: Rented
+      responses:
+        "200":
+          description: Estado actualizado. La respuesta contiene únicamente el id y el estado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdatePropertyStatusResponse"
+              example:
+                id: 9c2fcbcb-f94a-4c70-b04f-b24488b89ad1
+                status: Rented
+        "400":
+          description: Identificador o cuerpo no válido.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ValidationProblemDetails"
+              example:
+                type: https://example.test/problems/validation
+                title: Se produjo un error de validación.
+                status: 400
+                errors:
+                  status:
+                    - El estado debe ser Available, Rented o Maintenance.
+        "404":
+          description: No existe una propiedad con el identificador indicado.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                type: https://example.test/problems/not-found
+                title: No se encontró la propiedad.
+                status: 404
+                detail: No existe una propiedad con el identificador solicitado.
+components:
+  schemas:
+    UpdatePropertyStatusRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Available
+            - Rented
+            - Maintenance
+    UpdatePropertyStatusResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - Available
+            - Rented
+            - Maintenance
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          const: 404
+        detail:
+          type: string
+        instance:
+          type: string
+    ValidationProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          const: 400
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

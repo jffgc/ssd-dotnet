@@ -123,6 +123,58 @@
         }
       }
     },
+    "/api/properties/{id}/status": {
+      "patch": {
+        "tags": [
+          "RealtorApi"
+        ],
+        "summary": "Actualizar el estado de una propiedad",
+        "description": "Modifica exclusivamente el estado de una propiedad existente.",
+        "operationId": "UpdatePropertyStatus",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePropertyStatusBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePropertyStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/properties": {
       "get": {
         "tags": [
@@ -777,6 +829,41 @@
             "format": "date-time"
           }
         }
+      },
+      "UpdatePropertyStatusBody": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/UpdatePropertyStatusValue"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyStatusResponse": {
+        "required": [
+          "id",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePropertyStatusValue": {
+        "enum": [
+          "Available",
+          "Rented",
+          "Maintenance"
+        ]
       }
     }
   },
